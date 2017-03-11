@@ -20,7 +20,7 @@ public class PhotoAdapter extends BaseAdapter{
     private Context mContext;
 
     public static class ViewHolder {
-        TextView title, date;
+        TextView title;
         ImageView photo;
     }
 
@@ -50,7 +50,6 @@ public class PhotoAdapter extends BaseAdapter{
             v = LayoutInflater.from(mContext).inflate(R.layout.photo_item, parent, false);
             holder = new ViewHolder();
             holder.title = (TextView) v.findViewById(R.id.title);
-            holder.date = (TextView) v.findViewById(R.id.date);
             holder.photo = (ImageView) v.findViewById(R.id.photo);
             v.setTag(holder);
         } else {
@@ -58,8 +57,7 @@ public class PhotoAdapter extends BaseAdapter{
         }
 
         if(!photos.get(position).equals("")){
-            holder.title.setText(photos.get(position));
-            holder.date.setText(times.get(position));
+            holder.title.setText(times.get(position));
             Bitmap img = Util.loadImage(mContext, photos.get(position));
             if(img!=null){
                 holder.photo.setImageBitmap(img);
