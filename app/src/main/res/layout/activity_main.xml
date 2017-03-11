@@ -1,17 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.camerash.android_photo_demo.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
-</RelativeLayout>
+    <FrameLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:titleTextColor="@android:color/white"
+            android:layout_gravity="top" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/no_photo"
+            android:visibility="gone"
+            android:layout_margin="10dp"
+            android:layout_gravity="center">
+
+            <TextView
+                android:text="No photos uploaded\n"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:text="Press the"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView2"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp" />
+
+
+                <ImageView
+                    app:srcCompat="@drawable/ic_action_delete_image_dark"
+                    android:id="@+id/imageView"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp" />
+
+                <TextView
+                    android:text="icon on the"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView3"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:text="top right hand corner\nto upload photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView4"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize">
+
+            <ListView
+                android:id="@+id/listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/login"
+        android:gravity="center"
+        android:background="@color/colorPrimary"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="@dimen/start_page_logo_size"
+            android:layout_height="@dimen/start_page_logo_size"
+            android:src="@drawable/ic_icon"
+            android:layout_gravity="center"
+            android:id="@+id/logo2" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:theme="@style/LoginPageEditTextLabel"
+            android:textColorHint="@android:color/white">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:id="@+id/username"
+                android:textColor="@android:color/white"
+                android:textColorHighlight="@android:color/white"
+                android:textColorLink="@android:color/white"
+                android:textColorHint="@android:color/white" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:theme="@style/LoginPageEditTextLabel"
+            android:textColorHint="@android:color/white">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:id="@+id/password"
+                android:textColor="@android:color/white"
+                android:textColorHighlight="@android:color/white"
+                android:textColorLink="@android:color/white"
+                android:inputType="textPassword"
+                android:textColorHint="@android:color/white" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:text="SIGNIN / SIGNUP"
+            android:layout_width="match_parent"
+            android:id="@+id/singin"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@android:color/white"
+            android:layout_margin="10dp"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:id="@+id/loading_screen"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="@dimen/start_page_logo_size"
+            android:layout_height="@dimen/start_page_logo_size"
+            android:src="@drawable/ic_icon"
+            android:layout_gravity="center"
+            android:id="@+id/logo" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/white_progress"
+            android:layout_below="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:text="Signing into skygear..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/init_text"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textStyle="normal|bold"
+            android:textSize="18sp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</FrameLayout>
