@@ -408,6 +408,7 @@ public class MainActivity extends AppCompatActivity {
                 mode.setTitle(checkedCount + " Selected");
                 // Calls toggleSelection method from ListViewAdapter Class
                 deletePhotoArray = listView.getCheckedItemPositions();
+                Log.d("test", deletePhotoArray.toString());
             }
 
             @Override
@@ -426,8 +427,8 @@ public class MainActivity extends AppCompatActivity {
                 if(item.getItemId()==R.id.delete){
                     ArrayList<Record> deleteArray = new ArrayList<Record>();
                     for(int i = 0 ; i < deletePhotoArray.size() ; i++){
-                        if(deletePhotoArray.get(i)){
-                            deleteArray.add(savedRecords[i]);
+                        if(deletePhotoArray.valueAt(i)){
+                            deleteArray.add(savedRecords[deletePhotoArray.keyAt(i)]);
                         }
                     }
                     pendingDeleteRecords = deleteArray.toArray(new Record[deleteArray.size()]);
