@@ -344,8 +344,8 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.login).setVisibility(View.GONE);
             username = Util.getData(this, "username");
             password = Util.getData(this, "password");
-            skygearSignupThread = new Thread(skygearSignup);
-            skygearSignupThread.start();
+            skygearSigninThread = new Thread(skygearSignin);
+            skygearSigninThread.start();
         }
         Util.startUpAnimation(MainActivity.this);
     }

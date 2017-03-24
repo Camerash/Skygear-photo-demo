@@ -20,7 +20,7 @@
         <item name="colorControlActivated">@android:color/holo_blue_light</item>
     </style>
 
-    <style name="myDialog" parent="Theme.AppCompat.Dialog">
+    <style name="myDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
 
