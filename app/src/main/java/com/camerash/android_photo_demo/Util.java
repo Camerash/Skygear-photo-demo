@@ -1,5 +1,6 @@
 package com.camerash.android_photo_demo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -7,6 +8,14 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -262,5 +271,46 @@ public class Util {
             return networkInfo != null && networkInfo.isConnected();
         }
         return false;
+    }
+
+    //Prettify UI
+    public static void startUpAnimation(Activity activity) {
+
+        final ImageView logo = (ImageView) activity.findViewById(R.id.logo);
+        final ProgressBar progressBar = (ProgressBar) activity.findViewById(R.id.progress_bar);
+        final TextView text = (TextView) activity.findViewById(R.id.init_text);
+
+        final TranslateAnimation moveUp = new TranslateAnimation(0, 0, 100, 0);
+        moveUp.setInterpolator(new DecelerateInterpolator());
+        moveUp.setDuration(500);
+        moveUp.setFillAfter(true);
+
+        final Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setDuration(500);
+        fadeIn.setStartOffset(500);
+
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                progressBar.setVisibility(View.VISIBLE);
+                text.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        logo.setAnimation(moveUp);
+        progressBar.setAnimation(fadeIn);
+        text.setAnimation(fadeIn);
+
     }
 }

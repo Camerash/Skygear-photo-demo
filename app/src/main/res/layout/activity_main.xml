@@ -35,7 +35,7 @@
             android:layout_gravity="center">
 
             <TextView
-                android:text="No photos uploaded\n"
+                android:text="@string/no_photo_str_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView"
@@ -50,7 +50,7 @@
                 android:gravity="center">
 
                 <TextView
-                    android:text="Press the"
+                    android:text="@string/no_photo_str_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView2"
@@ -68,7 +68,7 @@
                     android:layout_width="30dp" />
 
                 <TextView
-                    android:text="icon on the"
+                    android:text="@string/no_photo_str_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/textView3"
@@ -78,7 +78,7 @@
             </LinearLayout>
 
             <TextView
-                android:text="top right hand corner\nto upload photo"
+                android:text="@string/no_photo_str_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView4"
@@ -94,8 +94,8 @@
             android:layout_height="match_parent"
             android:layout_marginTop="?attr/actionBarSize">
 
-            <ListView
-                android:id="@+id/listview"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
@@ -110,7 +110,7 @@
         android:id="@+id/login"
         android:gravity="center"
         android:background="@color/colorPrimary"
-        android:visibility="gone">
+        android:visibility="visible">
         <ImageView
             android:layout_width="@dimen/start_page_logo_size"
             android:layout_height="@dimen/start_page_logo_size"
@@ -128,7 +128,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
+                android:hint="@string/username_str"
                 android:id="@+id/username"
                 android:textColor="@android:color/white"
                 android:textColorHighlight="@android:color/white"
@@ -147,7 +147,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
+                android:hint="@string/password_str"
                 android:id="@+id/password"
                 android:textColor="@android:color/white"
                 android:textColorHighlight="@android:color/white"
@@ -157,14 +157,31 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <Button
-            android:text="SIGNIN / SIGNUP"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:id="@+id/singin"
-            android:background="@color/colorPrimaryDark"
-            android:textColor="@android:color/white"
-            android:layout_margin="10dp"
-            android:layout_height="50dp" />
+            android:layout_height="wrap_content">
+
+            <Button
+                android:text="@string/signin_btn"
+                android:layout_width="match_parent"
+                android:id="@+id/singin"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@android:color/white"
+                android:layout_margin="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:text="@string/signup_btn"
+                android:layout_width="match_parent"
+                android:id="@+id/singup"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@android:color/white"
+                android:layout_margin="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -187,14 +204,13 @@
             android:id="@+id/progress_bar"
             android:indeterminate="true"
             android:indeterminateDrawable="@drawable/white_progress"
-            android:layout_below="@+id/logo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:visibility="gone" />
 
         <TextView
-            android:text="Signing into skygear..."
+            android:text="@string/signing_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/init_text"

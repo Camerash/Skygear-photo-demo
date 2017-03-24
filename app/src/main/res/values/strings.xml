@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Skygear Photo Demo</string>
+    <string name="signing_in">Signing into skygear…</string>
+    <string name="signin_btn">SIGNIN</string>
+    <string name="signup_btn">SIGNUP</string>
+    <string name="password_str">Password</string>
+    <string name="username_str">Username</string>
+    <string name="no_photo_str_1">No photos uploaded\n</string>
+    <string name="no_photo_str_2">Press the</string>
+    <string name="no_photo_str_3">icon on the</string>
+    <string name="no_photo_str_4">top right hand corner\nto upload photo</string>
+    <string name="upload_photo">Upload photo</string>
+    <string name="delete_photo">Delete Photo</string>
 </resources>
