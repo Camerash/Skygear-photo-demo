@@ -10,6 +10,9 @@ An android demo application for photo uploading with [Skygear](https://skygear.i
 
 ## Available features:
 -User authentication
+
 -Auto signin
+
 -Photo upload, download and delete
+
 -Pull down to refresh
