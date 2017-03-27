@@ -17,7 +17,7 @@
         <item name="android:textSize">15sp</item>
         <item name="colorAccent">@android:color/holo_red_light</item>
         <item name="colorControlNormal">@android:color/white</item>
-        <item name="colorControlActivated">@android:color/holo_blue_light</item>
+        <item name="colorControlActivated">@android:color/white</item>
     </style>
 
     <style name="myDialog" parent="Theme.AppCompat.Light.Dialog">
