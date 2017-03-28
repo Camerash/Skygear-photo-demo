@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -119,12 +120,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAuthFail(Error error) {
                     progressDialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mInstance, "Username / Password incorrect", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mInstance, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    else{
+                        Handler handler = new Handler();
+                        handler.postDelayed(skygearSignin, 2000);
+                    }
+
                 }
             });
         }
