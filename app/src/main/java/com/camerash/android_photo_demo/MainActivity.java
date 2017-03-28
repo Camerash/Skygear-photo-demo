@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAuthFail(Error error) {
                     progressDialog.dismiss();
-                    if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS)) {
+                    if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS) || error.getCode().equals(Error.Code.RESOURCE_NOT_FOUND)) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -132,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
                         Handler handler = new Handler();
                         handler.postDelayed(skygearSignin, 2000);
                     }
-
                 }
             });
         }
