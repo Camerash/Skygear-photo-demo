@@ -307,8 +307,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         Configuration config = new Configuration.Builder()
-                .endPoint("https://androidphotodemo.skygeario.com/")
-                .apiKey("59910b66ea4e469187247df769100029")
+                .endPoint(getResources().getString(R.string.skygear_endPoint))
+                .apiKey(getResources().getString(R.string.skygear_apiKey))
                 .build();
 
         skygear.configure(config);

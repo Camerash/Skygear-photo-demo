@@ -1,4 +1,9 @@
 <resources>
+    <!-- Skygear informations-->
+    <!-- Replace your endpoint and API key in here-->
+    <string name="skygear_endPoint">https://androidphotodemo.skygeario.com/</string>
+    <string name="skygear_apiKey">59910b66ea4e469187247df769100029</string>
+
     <string name="app_name">Skygear Photo Demo</string>
     <string name="signing_in">Signing into skygear…</string>
     <string name="signin_btn">SIGNIN</string>

@@ -6,7 +6,7 @@ An android demo application for photo uploading with [Skygear](https://skygear.i
 ## Installation
 1. Clone this repository
 2. Create an account at [Skygear Cloud](https://portal.skygear.io/signup)
-3. In App>Java>android_photo_demo>MainActivity, replace the `<your-end-point>` and `<your-api-key>` in the `onCreate` method with the ones you get from Skygear.
+3. In the `string.xml` resource file, replace the `skygear_endPoint` and `skygear_apiKey` strings with the ones you get from Skygear.
 
 ## Available features:
 -User authentication
