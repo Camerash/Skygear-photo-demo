@@ -7,8 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,8 +46,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
     public void onBindViewHolder(@NonNull final MyHolder holder, final int position) {
         final Photo curPhoto = photos.get(position);
 
+        // Load information of photo into holder title
         holder.title.setText(format.format(curPhoto.getTime()));
-        holder.layout.setOnClickListener(new View.OnClickListener() {
+
+        // Load photo with Picasso library
+        Picasso.get()
+                .load(curPhoto.getUrl())
+                .into(holder.photo);
+
+        // Set OnClickListener
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mContext instanceof PhotoOnClickListener) {
@@ -69,13 +78,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
 
         private TextView title;
         private ImageView photo;
-        private LinearLayout layout;
 
         MyHolder(View v) {
             super(v);
             title = v.findViewById(R.id.title);
             photo = v.findViewById(R.id.photo);
-            layout = v.findViewById(R.id.layout);
         }
     }
 }
