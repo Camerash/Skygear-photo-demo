@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -48,196 +47,13 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
 
     public static final int PICK_IMAGE = 1;
     public static boolean deleteMode = false;
-    public static Thread deleteRecordsThread;
-    public static Record pendingDeleteRecord;
     private ArrayList<Photo> photoList = new ArrayList<>();
     public ProgressDialog progressDialog;
     public Container skygear;
     public Database publicDB;
-    public Thread skygearSignupThread, skygearSigninThread, getRecordsThread, uploadImageThread;
     public Context mInstance;
-    public byte[] currentImageData;
-    public String currentImageName, currentImageType;
-    public String username, password;
     public RecyclerView recyclerView;
     public LinearLayoutManager linearLayoutManager;
-
-    public Runnable skygearSignin = new Runnable() {
-        @Override
-        public void run() {
-            skygear.getAuth().loginWithUsername(username, password, new AuthResponseHandler() {
-                @Override
-                public void onAuthSuccess(Record user) {
-                    progressDialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.login).setVisibility(View.GONE);
-                            findViewById(R.id.loading_screen).setVisibility(View.GONE);
-                            progressDialog.setMessage("Loading......");
-                            progressDialog.show();
-                        }
-                    });
-                    Util.saveData(mInstance, "username", username);
-                    Util.saveData(mInstance, "password", password);
-                    getRecords();
-                }
-
-                @Override
-                public void onAuthFail(Error error) {
-                    progressDialog.dismiss();
-                    if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS) || error.getCode().equals(Error.Code.RESOURCE_NOT_FOUND)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(mInstance, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                    else{
-                        Handler handler = new Handler();
-                        handler.postDelayed(skygearSignin, 2000);
-                    }
-                }
-            });
-        }
-    };
-
-    public Runnable skygearSignup = new Runnable() {
-        @Override
-        public void run() {
-            skygear.getAuth().signupWithUsername(username, password, new AuthResponseHandler() {
-                @Override
-                public void onAuthSuccess(Record user) {
-                    progressDialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.login).setVisibility(View.GONE);
-                            findViewById(R.id.loading_screen).setVisibility(View.GONE);
-                            progressDialog.setMessage("Loading......");
-                            progressDialog.show();
-                        }
-                    });
-                    Util.saveData(mInstance, "username", username);
-                    Util.saveData(mInstance, "password", password);
-                    getRecords();
-                }
-
-                @Override
-                public void onAuthFail(Error error) {
-                    if (error.getCode().equals(Error.Code.DUPLICATED)) {
-                        Toast.makeText(mInstance, "User already exists", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(mInstance, "Signup failed", Toast.LENGTH_SHORT).show();
-                    }
-                    progressDialog.dismiss();
-                    Log.d("error", error.getCode().toString());
-                }
-            });
-        }
-    };
-
-    public Runnable deleteRecords = new Runnable() {
-        @Override
-        public void run() {
-            publicDB.delete(pendingDeleteRecord, new RecordDeleteResponseHandler() {
-                @Override
-                public void onDeleteSuccess(String[] ids) {
-                    Record record = pendingDeleteRecord;
-                    progressDialog.dismiss();
-                    pendingDeleteRecord = null;
-                    getRecords();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mInstance, "Deleted", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onDeletePartialSuccess(String[] ids, Map<String, Error> errors) {
-                    progressDialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onDeleteFail(Error error) {
-                    progressDialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-            deleteMode = false;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ActionBar mBar = getSupportActionBar();
-                    if (mBar != null) {
-                        ColorDrawable original = new ColorDrawable(ContextCompat.getColor(mInstance, R.color.colorPrimary));
-                        mBar.setBackgroundDrawable(original);
-                        mBar.setTitle(R.string.app_name);
-                    }
-                }
-            });
-        }
-    };
-
-    public Runnable uploadImage = new Runnable() {
-        @Override
-        public void run() {
-            Asset imageAsset = new Asset(currentImageName, currentImageType, currentImageData);
-
-            publicDB.uploadAsset(imageAsset, new AssetPostRequest.ResponseHandler() {
-                @Override
-                public void onPostSuccess(Asset asset, String response) {
-                    Log.i("Skygear Asset", "Successfully uploaded to " + asset.getUrl());
-                    Record aNote = new Record("Note");
-                    aNote.setPublicNoAccess();
-                    aNote.set("image", asset);
-
-                    publicDB.save(aNote, new RecordSaveResponseHandler() {
-                        @Override
-                        public void onSaveSuccess(Record[] records) {
-                            Log.i("Skygear Record", "Successfully saved");
-                            getRecords();
-                        }
-
-                        @Override
-                        public void onPartiallySaveSuccess(Map<String, Record> successRecords, Map<String, Error> errors) {
-                            Log.i("Skygear Record", "Partially saved");
-                        }
-
-                        @Override
-                        public void onSaveFail(Error error) {
-                            Log.i("Skygear Record", "Record save fails");
-                        }
-                    });
-                }
-
-                @Override
-                public void onPostFail(Asset asset, Error error) {
-                    Log.i("Skygear Asset", "Upload fail: " + error.toString());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mInstance, "Upload failed!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,32 +100,27 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             findViewById(R.id.singin).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    username = ((EditText) findViewById(R.id.username)).getText().toString();
-                    password = ((EditText) findViewById(R.id.password)).getText().toString();
+                    String username = ((EditText) findViewById(R.id.username)).getText().toString();
+                    String password = ((EditText) findViewById(R.id.password)).getText().toString();
                     progressDialog.setMessage("Signing in......");
                     progressDialog.show();
-                    skygearSigninThread = new Thread(skygearSignin);
-                    skygearSigninThread.start();
+                    skygearSignIn(username, password);
                 }
             });
             findViewById(R.id.singup).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    username = ((EditText) findViewById(R.id.username)).getText().toString();
-                    password = ((EditText) findViewById(R.id.password)).getText().toString();
+                    String username = ((EditText) findViewById(R.id.username)).getText().toString();
+                    String password = ((EditText) findViewById(R.id.password)).getText().toString();
                     progressDialog.setMessage("Signing up......");
                     progressDialog.show();
-                    skygearSignupThread = new Thread(skygearSignup);
-                    skygearSignupThread.start();
+                    skygearSignup(username, password);
                 }
             });
             return;
         } else {
             findViewById(R.id.login).setVisibility(View.GONE);
-            username = Util.getData(this, "username");
-            password = Util.getData(this, "password");
-            skygearSigninThread = new Thread(skygearSignin);
-            skygearSigninThread.start();
+            skygearSignIn(Util.getData(this, "username"), Util.getData(this, "password"));
         }
         Util.startUpAnimation(MainActivity.this);
     }
@@ -331,6 +142,136 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
         });
     }
 
+    public void skygearSignIn(final String username, final String password) {
+        skygear.getAuth().loginWithUsername(username, password, new AuthResponseHandler() {
+            @Override
+            public void onAuthSuccess(Record user) {
+                progressDialog.dismiss();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.login).setVisibility(View.GONE);
+                        findViewById(R.id.loading_screen).setVisibility(View.GONE);
+                        progressDialog.setMessage("Loading......");
+                        progressDialog.show();
+                    }
+                });
+                Util.saveData(mInstance, "username", username);
+                Util.saveData(mInstance, "password", password);
+                getRecords();
+            }
+
+            @Override
+            public void onAuthFail(Error error) {
+                progressDialog.dismiss();
+                if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS) || error.getCode().equals(Error.Code.RESOURCE_NOT_FOUND)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mInstance, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                else{
+                    Toast.makeText(mInstance, "Error, please try again", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void skygearSignup(final String username, final String password) {
+        skygear.getAuth().signupWithUsername(username, password, new AuthResponseHandler() {
+            @Override
+            public void onAuthSuccess(Record user) {
+                progressDialog.dismiss();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.login).setVisibility(View.GONE);
+                        findViewById(R.id.loading_screen).setVisibility(View.GONE);
+                        progressDialog.setMessage("Loading......");
+                        progressDialog.show();
+                    }
+                });
+                Util.saveData(mInstance, "username", username);
+                Util.saveData(mInstance, "password", password);
+                getRecords();
+            }
+
+            @Override
+            public void onAuthFail(Error error) {
+                if (error.getCode().equals(Error.Code.DUPLICATED)) {
+                    Toast.makeText(mInstance, "User already exists", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mInstance, "Signup failed", Toast.LENGTH_SHORT).show();
+                }
+                progressDialog.dismiss();
+                Log.d("error", error.getCode().toString());
+            }
+        });
+    }
+
+    public void deleteRecord(Record pendingDeleteRecord) {
+        publicDB.delete(pendingDeleteRecord, new RecordDeleteResponseHandler() {
+            @Override
+            public void onDeleteSuccess(String[] ids) {
+                progressDialog.dismiss();
+                getRecords();
+                Toast.makeText(mInstance, "Deleted", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeletePartialSuccess(String[] ids, Map<String, Error> errors) {
+                progressDialog.dismiss();
+                Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeleteFail(Error error) {
+                progressDialog.dismiss();
+                Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void uploadPhoto(String imageName, String imageType, byte[] imageData) {
+        Asset imageAsset = new Asset(imageName, imageType, imageData);
+
+        publicDB.uploadAsset(imageAsset, new AssetPostRequest.ResponseHandler() {
+            @Override
+            public void onPostSuccess(Asset asset, String response) {
+                Log.i("Skygear Asset", "Successfully uploaded to " + asset.getUrl());
+                Record aNote = new Record("Note");
+                aNote.setPublicNoAccess();
+                aNote.set("image", asset);
+
+                publicDB.save(aNote, new RecordSaveResponseHandler() {
+                    @Override
+                    public void onSaveSuccess(Record[] records) {
+                        Log.i("Skygear Record", "Successfully saved");
+                        getRecords();
+                    }
+
+                    @Override
+                    public void onPartiallySaveSuccess(Map<String, Record> successRecords, Map<String, Error> errors) {
+                        Log.i("Skygear Record", "Partially saved");
+                    }
+
+                    @Override
+                    public void onSaveFail(Error error) {
+                        Log.i("Skygear Record", "Record save fails");
+                    }
+                });
+            }
+
+            @Override
+            public void onPostFail(Asset asset, Error error) {
+                Log.i("Skygear Asset", "Upload fail: " + error.toString());
+                Toast.makeText(mInstance, "Upload failed!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
@@ -344,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                 pickImageFromGallery();
                 return true;
             case R.id.delete_photo:
-                prepareDeleteMode();
+                showDeletingActionBar(!deleteMode);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -364,24 +305,19 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
         startActivityForResult(chooserIntent, PICK_IMAGE);
     }
 
-    public void prepareDeleteMode() {
+    public void showDeletingActionBar(Boolean show) {
         ActionBar mBar = getSupportActionBar();
-        if (deleteMode) {
-            deleteMode = false;
-            if (mBar != null) {
-                ColorDrawable original = new ColorDrawable(ContextCompat.getColor(mInstance, R.color.colorPrimary));
-                mBar.setBackgroundDrawable(original);
-                mBar.setTitle(R.string.app_name);
-            }
+        if(mBar == null) return;
+        if(show) {
+            ColorDrawable red = new ColorDrawable(Color.RED);
+            mBar.setBackgroundDrawable(red);
+            mBar.setTitle("Press photo to delete");
         } else {
-            deleteRecordsThread = new Thread(deleteRecords);
-            deleteMode = true;
-            if (mBar != null) {
-                ColorDrawable red = new ColorDrawable(Color.RED);
-                mBar.setBackgroundDrawable(red);
-                mBar.setTitle("Press photo to delete");
-            }
+            ColorDrawable original = new ColorDrawable(ContextCompat.getColor(mInstance, R.color.colorPrimary));
+            mBar.setBackgroundDrawable(original);
+            mBar.setTitle(R.string.app_name);
         }
+        deleteMode = show;
     }
 
     @Override
@@ -393,19 +329,18 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             try {
                 Uri imageUri = data.getData();
                 File f = new File("" + imageUri);
-                currentImageName = f.getName();
+                String imageName = f.getName();
                 ContentResolver cR = getContentResolver();
                 assert imageUri != null;
-                currentImageType = cR.getType(imageUri);
+                String imageType = cR.getType(imageUri);
                 InputStream iStream = cR.openInputStream(imageUri);
                 assert iStream != null;
-                currentImageData = Util.getBytes(iStream);
+                byte[] imageData = Util.getBytes(iStream);
 
                 progressDialog.setMessage("Uploading......");
                 progressDialog.show();
 
-                uploadImageThread = new Thread(uploadImage);
-                uploadImageThread.start();
+                uploadPhoto(imageName, imageType, imageData);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -429,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
         photoList.clear();
         for (Record record : photoRecords) {
             Asset photo = (Asset) record.get("image");
-            photoList.add(new Photo(photo.getName(), record.getCreatedAt()));
+            photoList.add(new Photo(record, photo));
         }
 
         final PhotoAdapter mAdapter = new PhotoAdapter(mInstance, photoList);
@@ -437,27 +372,25 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     }
 
     @Override
-    public void onPhotoClicked(Photo photo) {
+    public void onPhotoClicked(final Photo photo) {
         if (deleteMode) {
-            if (deleteRecordsThread != null) {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
-                mBuilder.setTitle("Delete photo");
-                mBuilder.setMessage("Confirm deleting the selected photo?");
-                mBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        progressDialog.setMessage("Deleting...");
-                        progressDialog.show();
-                        deleteRecordsThread.start();
-                    }
-                });
-                mBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {}
-                });
-                AlertDialog dialog = mBuilder.create();
-                dialog.show();
-            }
+            AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
+            mBuilder.setTitle("Delete photo");
+            mBuilder.setMessage("Confirm deleting the selected photo?");
+            mBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    progressDialog.setMessage("Deleting...");
+                    progressDialog.show();
+                    deleteRecord(photo.getRecord());
+                }
+            });
+            mBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {}
+            });
+            AlertDialog dialog = mBuilder.create();
+            dialog.show();
         }
     }
 }
