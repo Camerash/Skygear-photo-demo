@@ -42,7 +42,6 @@ import io.skygear.skygear.Record;
 import io.skygear.skygear.RecordDeleteResponseHandler;
 import io.skygear.skygear.RecordQueryResponseHandler;
 import io.skygear.skygear.RecordSaveResponseHandler;
-import io.skygear.skygear.User;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -98,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
     public Runnable skygearSignin = new Runnable() {
         @Override
         public void run() {
-            skygear.loginWithUsername(username, password, new AuthResponseHandler() {
+            skygear.getAuth().loginWithUsername(username, password, new AuthResponseHandler() {
                 @Override
-                public void onAuthSuccess(User user) {
+                public void onAuthSuccess(Record user) {
                     progressDialog.dismiss();
                     runOnUiThread(new Runnable() {
                         @Override
@@ -140,9 +139,9 @@ public class MainActivity extends AppCompatActivity {
     public Runnable skygearSignup = new Runnable() {
         @Override
         public void run() {
-            skygear.signupWithUsername(username, password, new AuthResponseHandler() {
+            skygear.getAuth().signupWithUsername(username, password, new AuthResponseHandler() {
                 @Override
-                public void onAuthSuccess(User user) {
+                public void onAuthSuccess(Record user) {
                     progressDialog.dismiss();
                     runOnUiThread(new Runnable() {
                         @Override
@@ -239,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Asset imageAsset = new Asset(currentImageName, currentImageType, currentImageData);
 
-            skygear.uploadAsset(imageAsset, new AssetPostRequest.ResponseHandler() {
+            publicDB.uploadAsset(imageAsset, new AssetPostRequest.ResponseHandler() {
                 @Override
                 public void onPostSuccess(Asset asset, String response) {
                     Log.i("Skygear Asset", "Successfully uploaded to " + asset.getUrl());
