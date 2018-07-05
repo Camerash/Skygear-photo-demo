@@ -48,7 +48,7 @@ public class Util {
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
 
-        int len = 0;
+        int len;
         while ((len = inputStream.read(buffer)) != -1) {
             byteBuffer.write(buffer, 0, len);
         }
@@ -69,9 +69,9 @@ public class Util {
     //Prettify UI
     public static void startUpAnimation(Activity activity) {
 
-        final ImageView logo = (ImageView) activity.findViewById(R.id.logo);
-        final ProgressBar progressBar = (ProgressBar) activity.findViewById(R.id.progress_bar);
-        final TextView text = (TextView) activity.findViewById(R.id.init_text);
+        final ImageView logo = activity.findViewById(R.id.logo);
+        final ProgressBar progressBar = activity.findViewById(R.id.progress_bar);
+        final TextView text = activity.findViewById(R.id.init_text);
 
         final TranslateAnimation moveUp = new TranslateAnimation(0, 0, 100, 0);
         moveUp.setInterpolator(new DecelerateInterpolator());
