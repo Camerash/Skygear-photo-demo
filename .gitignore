@@ -125,7 +125,7 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
-app/app.iml
+/app/app.iml
 
 .idea/codeStyles/Project.xml
 .idea/caches/*
