@@ -19,7 +19,12 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+
+    // Skygear Core SDK
     implementation 'io.skygear:skygear:1.6.0'
+
+    // Photo loading library
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
