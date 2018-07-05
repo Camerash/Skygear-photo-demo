@@ -2,7 +2,6 @@ package com.camerash.android_photo_demo;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -51,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     public ProgressDialog progressDialog;
     public Container skygear;
     public Database publicDB;
-    public Context mInstance;
     public RecyclerView recyclerView;
     public LinearLayoutManager linearLayoutManager;
 
@@ -69,8 +67,6 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
 
         skygear = Container.defaultContainer(this);
         publicDB = skygear.getPublicDatabase();
-
-        mInstance = this.getApplicationContext();
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -156,8 +152,8 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                         progressDialog.show();
                     }
                 });
-                Util.saveData(mInstance, "username", username);
-                Util.saveData(mInstance, "password", password);
+                Util.saveData(MainActivity.this, "username", username);
+                Util.saveData(MainActivity.this, "password", password);
                 getRecords();
             }
 
@@ -168,12 +164,12 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(mInstance, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
                 else{
-                    Toast.makeText(mInstance, "Error, please try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Error, please try again", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -193,17 +189,17 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                         progressDialog.show();
                     }
                 });
-                Util.saveData(mInstance, "username", username);
-                Util.saveData(mInstance, "password", password);
+                Util.saveData(MainActivity.this, "username", username);
+                Util.saveData(MainActivity.this, "password", password);
                 getRecords();
             }
 
             @Override
             public void onAuthFail(Error error) {
                 if (error.getCode().equals(Error.Code.DUPLICATED)) {
-                    Toast.makeText(mInstance, "User already exists", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "User already exists", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mInstance, "Signup failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Signup failed", Toast.LENGTH_SHORT).show();
                 }
                 progressDialog.dismiss();
                 Log.d("error", error.getCode().toString());
@@ -217,19 +213,19 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             public void onDeleteSuccess(String[] ids) {
                 progressDialog.dismiss();
                 getRecords();
-                Toast.makeText(mInstance, "Deleted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDeletePartialSuccess(String[] ids, Map<String, Error> errors) {
                 progressDialog.dismiss();
-                Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "System error, please try again", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDeleteFail(Error error) {
                 progressDialog.dismiss();
-                Toast.makeText(mInstance, "System error, please try again", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "System error, please try again", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -267,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             @Override
             public void onPostFail(Asset asset, Error error) {
                 Log.i("Skygear Asset", "Upload fail: " + error.toString());
-                Toast.makeText(mInstance, "Upload failed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Upload failed!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -313,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             mBar.setBackgroundDrawable(red);
             mBar.setTitle("Press photo to delete");
         } else {
-            ColorDrawable original = new ColorDrawable(ContextCompat.getColor(mInstance, R.color.colorPrimary));
+            ColorDrawable original = new ColorDrawable(ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
             mBar.setBackgroundDrawable(original);
             mBar.setTitle(R.string.app_name);
         }
@@ -367,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             photoList.add(new Photo(record, photo));
         }
 
-        final PhotoAdapter mAdapter = new PhotoAdapter(mInstance, photoList);
+        final PhotoAdapter mAdapter = new PhotoAdapter(this, photoList);
         recyclerView.setAdapter(mAdapter);
     }
 
