@@ -231,6 +231,9 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     }
 
     public void uploadPhoto(String imageName, String imageType, byte[] imageData) {
+        progressDialog.setMessage("Uploading......");
+        progressDialog.show();
+
         Asset imageAsset = new Asset(imageName, imageType, imageData);
 
         publicDB.uploadAsset(imageAsset, new AssetPostRequest.ResponseHandler() {
@@ -245,16 +248,19 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                     @Override
                     public void onSaveSuccess(Record[] records) {
                         Log.i("Skygear Record", "Successfully saved");
+                        progressDialog.dismiss();
                         getRecords();
                     }
 
                     @Override
                     public void onPartiallySaveSuccess(Map<String, Record> successRecords, Map<String, Error> errors) {
+                        progressDialog.dismiss();
                         Log.i("Skygear Record", "Partially saved");
                     }
 
                     @Override
                     public void onSaveFail(Error error) {
+                        progressDialog.dismiss();
                         Log.i("Skygear Record", "Record save fails");
                     }
                 });
@@ -262,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
 
             @Override
             public void onPostFail(Asset asset, Error error) {
+                progressDialog.dismiss();
                 Log.i("Skygear Asset", "Upload fail: " + error.toString());
                 Toast.makeText(MainActivity.this, "Upload failed!", Toast.LENGTH_SHORT).show();
             }
@@ -332,9 +339,6 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                 InputStream iStream = cR.openInputStream(imageUri);
                 assert iStream != null;
                 byte[] imageData = Util.getBytes(iStream);
-
-                progressDialog.setMessage("Uploading......");
-                progressDialog.show();
 
                 uploadPhoto(imageName, imageType, imageData);
             } catch (Exception e) {
