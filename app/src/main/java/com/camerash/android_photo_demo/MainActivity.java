@@ -3,6 +3,7 @@ package com.camerash.android_photo_demo;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +28,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -43,14 +44,14 @@ import io.skygear.skygear.RecordDeleteResponseHandler;
 import io.skygear.skygear.RecordQueryResponseHandler;
 import io.skygear.skygear.RecordSaveResponseHandler;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PhotoAdapter.PhotoOnClickListener {
 
     public static final int PICK_IMAGE = 1;
     public static boolean deleteMode = false;
     public static Thread deleteRecordsThread;
-    public static Record[] savedRecords;
     public static Record pendingDeleteRecord;
-    public static ProgressDialog progressDialog;
+    private ArrayList<Photo> photoList = new ArrayList<>();
+    public ProgressDialog progressDialog;
     public Container skygear;
     public Database publicDB;
     public Thread skygearSignupThread, skygearSigninThread, getRecordsThread, uploadImageThread;
@@ -70,21 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onQuerySuccess(Record[] records) {
                     Log.i("Record Query", String.format("Successfully got %d records", records.length));
-                    savedRecords = records;
-                    for (Record record : savedRecords) {
-                        if (record.get("image") != null) {
-                            try {
-                                Asset eventImg = (Asset) record.get("image");
-                                if (!Util.isImageExist(mInstance, eventImg.getName())) {
-                                    byte[] img = new Util.DownloadTask(eventImg.getUrl()).get();
-                                    Util.saveImage(mInstance, eventImg.getName(), img);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    preparePhotoList();
+                    preparePhotoList(records);
                 }
 
                 @Override
@@ -179,10 +166,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDeleteSuccess(String[] ids) {
                     Record record = pendingDeleteRecord;
-                    if (record.get("image") != null) {
-                        Asset eventImg = (Asset) record.get("image");
-                        Util.deleteImage(mInstance, eventImg.getName());
-                    }
                     progressDialog.dismiss();
                     pendingDeleteRecord = null;
                     getRecordsThread = new Thread(getRecords);
@@ -208,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onDeleteFail(Error error) {
-                    Log.d("test", error.getMessage());
                     progressDialog.dismiss();
                     runOnUiThread(new Runnable() {
                         @Override
@@ -284,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
         if (!Util.isNetworkConnected(getApplicationContext())) {
@@ -301,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(false);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
 
@@ -420,8 +402,10 @@ public class MainActivity extends AppCompatActivity {
                 File f = new File("" + imageUri);
                 currentImageName = f.getName();
                 ContentResolver cR = getContentResolver();
+                assert imageUri != null;
                 currentImageType = cR.getType(imageUri);
                 InputStream iStream = cR.openInputStream(imageUri);
+                assert iStream != null;
                 currentImageData = Util.getBytes(iStream);
 
                 progressDialog.setMessage("Uploading......");
@@ -435,37 +419,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void preparePhotoList() {
+    public void preparePhotoList(final Record[] photoRecords) {
+
+        // Show empty view if no photo is loaded
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (savedRecords.length <= 0) {
-                    findViewById(R.id.no_photo).setVisibility(View.VISIBLE);
-                } else {
-                    findViewById(R.id.no_photo).setVisibility(View.GONE);
-                }
+                findViewById(R.id.no_photo).setVisibility(photoRecords.length <= 0 ? View.VISIBLE : View.GONE);
                 findViewById(R.id.loading_screen).setVisibility(View.GONE);
                 ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false);
+                if (progressDialog != null) { progressDialog.dismiss(); }
             }
         });
-        ArrayList<String> times = new ArrayList<String>();
-        ArrayList<String> photos = new ArrayList<String>();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        for (Record record : savedRecords) {
-            Asset eventImg = (Asset) record.get("image");
-            times.add(format.format(record.getCreatedAt()));
-            photos.add(eventImg.getName());
+
+        //
+        photoList.clear();
+        for (Record record : photoRecords) {
+            Asset photo = (Asset) record.get("image");
+            photoList.add(new Photo(photo.getName(), record.getCreatedAt()));
         }
 
-        final PhotoAdapter mAdapter = new PhotoAdapter(mInstance, times, photos);
+        final PhotoAdapter mAdapter = new PhotoAdapter(mInstance, photoList);
         recyclerView.setAdapter(mAdapter);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (progressDialog != null) {
-                    progressDialog.dismiss();
-                }
+    }
+
+    @Override
+    public void onPhotoClicked(Photo photo) {
+        if (deleteMode) {
+            if (deleteRecordsThread != null) {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(this);
+                mBuilder.setTitle("Delete photo");
+                mBuilder.setMessage("Confirm deleting the selected photo?");
+                mBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        progressDialog.setMessage("Deleting...");
+                        progressDialog.show();
+                        deleteRecordsThread.start();
+                    }
+                });
+                mBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                });
+                AlertDialog dialog = mBuilder.create();
+                dialog.show();
             }
-        });
+        }
     }
 }
