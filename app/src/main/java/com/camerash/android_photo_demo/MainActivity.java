@@ -62,25 +62,6 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     public RecyclerView recyclerView;
     public LinearLayoutManager linearLayoutManager;
 
-    public Runnable getRecords = new Runnable() {
-        @Override
-        public void run() {
-            Query noteQuery = new Query("Note");
-
-            publicDB.query(noteQuery, new RecordQueryResponseHandler() {
-                @Override
-                public void onQuerySuccess(Record[] records) {
-                    Log.i("Record Query", String.format("Successfully got %d records", records.length));
-                    preparePhotoList(records);
-                }
-
-                @Override
-                public void onQueryError(Error error) {
-                    Log.i("Record Query", String.format("Fail with reason:%s", error.getMessage()));
-                }
-            });
-        }
-    };
     public Runnable skygearSignin = new Runnable() {
         @Override
         public void run() {
@@ -99,8 +80,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                     });
                     Util.saveData(mInstance, "username", username);
                     Util.saveData(mInstance, "password", password);
-                    getRecordsThread = new Thread(getRecords);
-                    getRecordsThread.start();
+                    getRecords();
                 }
 
                 @Override
@@ -141,8 +121,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                     });
                     Util.saveData(mInstance, "username", username);
                     Util.saveData(mInstance, "password", password);
-                    getRecordsThread = new Thread(getRecords);
-                    getRecordsThread.start();
+                    getRecords();
                 }
 
                 @Override
@@ -168,8 +147,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                     Record record = pendingDeleteRecord;
                     progressDialog.dismiss();
                     pendingDeleteRecord = null;
-                    getRecordsThread = new Thread(getRecords);
-                    getRecordsThread.start();
+                    getRecords();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -232,8 +210,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                         @Override
                         public void onSaveSuccess(Record[] records) {
                             Log.i("Skygear Record", "Successfully saved");
-                            getRecordsThread = new Thread(getRecords);
-                            getRecordsThread.start();
+                            getRecords();
                         }
 
                         @Override
@@ -297,8 +274,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
         ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getRecordsThread = new Thread(getRecords);
-                getRecordsThread.start();
+                getRecords();
             }
         });
 
@@ -336,6 +312,23 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             skygearSigninThread.start();
         }
         Util.startUpAnimation(MainActivity.this);
+    }
+
+    public void getRecords() {
+        Query noteQuery = new Query("Note");
+
+        publicDB.query(noteQuery, new RecordQueryResponseHandler() {
+            @Override
+            public void onQuerySuccess(Record[] records) {
+                Log.i("Record Query", String.format("Successfully got %d records", records.length));
+                preparePhotoList(records);
+            }
+
+            @Override
+            public void onQueryError(Error error) {
+                Log.i("Record Query", String.format("Fail with reason:%s", error.getMessage()));
+            }
+        });
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
