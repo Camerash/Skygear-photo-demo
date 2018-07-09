@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
@@ -52,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     public Database publicDB;
     public RecyclerView recyclerView;
     public LinearLayoutManager linearLayoutManager;
+
+    private static final String IMAGE_NAME = "image";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -331,8 +332,6 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             }
             try {
                 Uri imageUri = data.getData();
-                File f = new File("" + imageUri);
-                String imageName = f.getName();
                 ContentResolver cR = getContentResolver();
                 assert imageUri != null;
                 String imageType = cR.getType(imageUri);
@@ -340,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
                 assert iStream != null;
                 byte[] imageData = Util.getBytes(iStream);
 
-                uploadPhoto(imageName, imageType, imageData);
+                uploadPhoto(IMAGE_NAME, imageType, imageData);
             } catch (Exception e) {
                 e.printStackTrace();
             }

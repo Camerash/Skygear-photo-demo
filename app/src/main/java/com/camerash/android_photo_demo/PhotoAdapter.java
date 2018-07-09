@@ -9,11 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -53,23 +50,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
         holder.title.setText(format.format(curPhoto.getTime()));
 
         // Load photo with Picasso library
-        try {
-            Picasso.get()
-                    .load(URLDecoder.decode(curPhoto.getUrl(), "UTF-8"))
-                    .into(holder.photo, new Callback() {
-                        @Override
-                        public void onSuccess() {
-
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        Picasso.get()
+                .load(curPhoto.getUrl())
+                .into(holder.photo);
 
         // Set OnClickListener
         holder.itemView.setOnClickListener(new View.OnClickListener() {
