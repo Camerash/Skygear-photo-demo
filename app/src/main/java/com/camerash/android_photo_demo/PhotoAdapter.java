@@ -74,6 +74,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MyHolder> {
         return photos.size();
     }
 
+    public void setPhotos(ArrayList<Photo> photos) {
+        this.photos = photos;
+        notifyDataSetChanged();
+    }
+
     static class MyHolder extends RecyclerView.ViewHolder {
 
         private TextView title;
