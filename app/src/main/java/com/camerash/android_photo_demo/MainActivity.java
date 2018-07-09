@@ -144,15 +144,10 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             @Override
             public void onAuthSuccess(Record user) {
                 progressDialog.dismiss();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        findViewById(R.id.login).setVisibility(View.GONE);
-                        findViewById(R.id.loading_screen).setVisibility(View.GONE);
-                        progressDialog.setMessage("Loading......");
-                        progressDialog.show();
-                    }
-                });
+                findViewById(R.id.login).setVisibility(View.GONE);
+                findViewById(R.id.loading_screen).setVisibility(View.GONE);
+                progressDialog.setMessage("Loading......");
+                progressDialog.show();
                 Util.saveData(MainActivity.this, "username", username);
                 Util.saveData(MainActivity.this, "password", password);
                 getRecords();
@@ -162,12 +157,7 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             public void onAuthFail(Error error) {
                 progressDialog.dismiss();
                 if(error.getCode().equals(Error.Code.INVALID_CREDENTIALS) || error.getCode().equals(Error.Code.RESOURCE_NOT_FOUND)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Toast.makeText(MainActivity.this, "Email / Password incorrect", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(MainActivity.this, "Error, please try again", Toast.LENGTH_SHORT).show();
@@ -181,15 +171,10 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             @Override
             public void onAuthSuccess(Record user) {
                 progressDialog.dismiss();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        findViewById(R.id.login).setVisibility(View.GONE);
-                        findViewById(R.id.loading_screen).setVisibility(View.GONE);
-                        progressDialog.setMessage("Loading......");
-                        progressDialog.show();
-                    }
-                });
+                findViewById(R.id.login).setVisibility(View.GONE);
+                findViewById(R.id.loading_screen).setVisibility(View.GONE);
+                progressDialog.setMessage("Loading......");
+                progressDialog.show();
                 Util.saveData(MainActivity.this, "username", username);
                 Util.saveData(MainActivity.this, "password", password);
                 getRecords();
@@ -349,15 +334,10 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
     public void preparePhotoList(final Record[] photoRecords) {
 
         // Show empty view if no photo is loaded
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.no_photo).setVisibility(photoRecords.length <= 0 ? View.VISIBLE : View.GONE);
-                findViewById(R.id.loading_screen).setVisibility(View.GONE);
-                ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false);
-                if (progressDialog != null) { progressDialog.dismiss(); }
-            }
-        });
+        findViewById(R.id.no_photo).setVisibility(photoRecords.length <= 0 ? View.VISIBLE : View.GONE);
+        findViewById(R.id.loading_screen).setVisibility(View.GONE);
+        ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false);
+        if (progressDialog != null) { progressDialog.dismiss(); }
 
         //
         photoList.clear();
@@ -366,8 +346,15 @@ public class MainActivity extends AppCompatActivity implements PhotoAdapter.Phot
             photoList.add(new Photo(record, photo));
         }
 
-        final PhotoAdapter mAdapter = new PhotoAdapter(this, photoList);
-        recyclerView.setAdapter(mAdapter);
+        PhotoAdapter adapter = (PhotoAdapter) recyclerView.getAdapter();
+        if(adapter == null) {
+            final PhotoAdapter mAdapter = new PhotoAdapter(this, photoList);
+            recyclerView.setAdapter(mAdapter);
+        } else {
+            adapter.setPhotos(photoList);
+        }
+
+
     }
 
     @Override
